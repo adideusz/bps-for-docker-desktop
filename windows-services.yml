@@ -6,7 +6,7 @@ services:
     hostname: bps-service
     environment:
       - STARTUP_MODE=service
-      - Configuration__BpsDbConfigRaw=Server=10.5.0.1,8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
+      - Configuration__BpsDbConfigRaw=Server=tcp:10.5.0.1,8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd;TrustServerCertificate=True
       - Configuration__ExternalWebService__Host=bps-service
       - Configuration__ExternalWebService__LicenseServicePort=8002
       - Configuration__ExternalWebService__Port=8003
@@ -30,8 +30,8 @@ services:
     hostname: bps-portal
     environment:
       - STARTUP_MODE=portal
-      - App__ConfigConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
-      - App__LogsConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
+      - App__ConfigConnection__Value=Server=tcp:${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd;TrustServerCertificate=True
+      - App__LogsConnection__Value=Server=tcp:${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd;TrustServerCertificate=True
       - App__IISIntegration=false
       - App__ForceHttpsOnProxy=true
       - App__Kestler__Port=8080
