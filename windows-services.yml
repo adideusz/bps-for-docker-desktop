@@ -1,22 +1,22 @@
 version: '3.9'
 services:
-  bps-init:
-    image: webconbps/init:2023.1.2.123-windowsservercore-ltsc2022
-    container_name: bps-init
-    hostname: bps-init
+  bps-bootstrapper:
+    image: webconbps/bootstrapper:2026.1.4.131-windowsservercore-ltsc2022
+    container_name: bps-bootstrapper
+    hostname: bps-bootstrapper
     environment:
-      - hostname=10.5.0.1
-      - bpshostname=https://${hostname}
-    networks:
-      - bps
-      
-  bps-service:
-    image: webconbps/service:2023.1.2.123-windowsservercore-ltsc2022
-    container_name: bps-service
-    hostname: bps-service
-    environment:
+      # --- portal ---
+      - App__ConfigConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
+      - App__LogsConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
+      - App__IISIntegration=false
+      - App__ForceHttpsOnProxy=true
+      - App__Kestler__Port=8080
+      - App__Kestler__UseSSL=false
+      - App__Kestler__Protocol=http
+      - App__LogLevel__Value=Warn
+      # --- service ---
       - Configuration__BpsDbConfigRaw=Server=10.5.0.1,8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
-      - Configuration__ExternalWebService__Host=bps-service
+      - Configuration__ExternalWebService__Host=bps-bootstrapper
       - Configuration__ExternalWebService__LicenseServicePort=8002
       - Configuration__ExternalWebService__Port=8003
       - Configuration__BpsSelfHost=true
@@ -27,34 +27,10 @@ services:
       - Configuration__Init__ServiceRoles__BasicFeatures=true
       - Configuration__Init__ServiceRoles__SolrIndexing=true
     ports:
+      - "8080:8080"
       - "8002:8002"
       - "8003:8003"
     restart: unless-stopped
-    depends_on:
-      bps-init:
-        condition: service_completed_successfully
-    networks:
-      - bps
-
-  bps-portal:
-    image: webconbps/portal:2023.1.2.123-windowsservercore-ltsc2022
-    container_name: bps-portal
-    hostname: bps-portal
-    environment:
-      - App__ConfigConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
-      - App__LogsConnection__Value=Server=${hostname},8433;Database=BPS_Config;User ID=sa;Password=P@ssw0rd
-      - App__IISIntegration=false
-      - App__ForceHttpsOnProxy=true
-      - App__Kestler__Port=80
-      - App__Kestler__UseSSL=false
-      - App__Kestler__Protocol=http
-      - App__LogLevel__Value=Warn
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-    depends_on:
-      bps-init:
-        condition: service_completed_successfully
     networks:
       - bps
 
